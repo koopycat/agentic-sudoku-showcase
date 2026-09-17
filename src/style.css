@@ -1,0 +1,43 @@
+* {
+  box-sizing: border-box;
+}
+:root {
+  color-scheme: light;
+  font-family:
+    ui-sans-serif,
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
+  font-synthesis: none;
+  --background: oklch(1 0 0);
+  --surface: oklch(0.97 0.006 91);
+  --surface-strong: oklch(0.925 0.01 91);
+  --ink: oklch(0.19 0.015 70);
+  --muted: oklch(0.45 0.018 70);
+  --line: oklch(0.78 0.012 70);
+  --primary: oklch(0.76 0.17 91);
+  --primary-dark: oklch(0.46 0.11 82);
+  --focus: oklch(0.38 0.12 245);
+  --error: oklch(0.52 0.19 28);
+  --error-bg: oklch(0.95 0.04 28);
+  --success: oklch(0.48 0.13 150);
+  --cell: oklch(1 0 0);
+  --given: oklch(0.23 0.02 70);
+  --given-bg: oklch(0.95 0.008 91);
+  --selected: oklch(0.91 0.1 91);
+}
+html {
+  background: var(--background);
+  color: var(--ink);
+}
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+}
+button,
+dialog {
+  font: inherit;
+}

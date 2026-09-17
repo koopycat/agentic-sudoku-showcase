@@ -1,0 +1,44 @@
+name: Feature request
+description: Propose a product behavior for human review and optional advisory planning.
+title: "[Feature]: "
+labels:
+  - enhancement
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for suggesting an improvement. Please describe the user need and observable outcome. Do not include secrets or credentials.
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: What user problem or limitation should this change address?
+      placeholder: Describe who is affected, what they are trying to do, and why the current behavior is insufficient.
+    validations:
+      required: true
+  - type: textarea
+    id: desired-behavior
+    attributes:
+      label: Desired behavior
+      description: What should users be able to do after this feature is implemented?
+      placeholder: Describe the expected behavior and user experience.
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance-criteria
+    attributes:
+      label: Acceptance criteria
+      description: List specific, observable conditions that would make this request complete.
+      placeholder: |
+        - [ ] Given ..., when ..., then ...
+        - [ ] ...
+    validations:
+      required: true
+  - type: textarea
+    id: context
+    attributes:
+      label: Relevant context
+      description: Add constraints, alternatives considered, examples, screenshots, or links. Do not include sensitive information.
+      placeholder: Optional background that will help reviewers understand the request.
+    validations:
+      required: false
