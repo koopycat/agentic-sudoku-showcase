@@ -239,6 +239,13 @@ describe("issue planning repository files", () => {
     }
   });
 
+  it("requires the structured issue form and disables blank issues", async () => {
+    const config = parse(
+      await readFile(".github/ISSUE_TEMPLATE/config.yml", "utf8"),
+    ) as { blank_issues_enabled?: boolean };
+    expect(config.blank_issues_enabled).toBe(false);
+  });
+
   it("uses only read-content/write-issue permissions and a label trigger", async () => {
     const source = await readFile(".github/workflows/issue-plan.yml", "utf8");
     const workflow = parse(source) as {
@@ -251,5 +258,18 @@ describe("issue planning repository files", () => {
     expect(source).toContain("getCollaboratorPermissionLevel");
     expect(source).toContain("persist-credentials: false");
     expect(source).not.toMatch(/permissions:[\s\S]*contents:\s*write/);
+  });
+
+  it("verifies the triggering actor's permission before any agent step", async () => {
+    const source = await readFile(".github/workflows/issue-plan.yml", "utf8");
+    const permissionStep = source.indexOf("Check triggering actor permission");
+    const agentStep = source.indexOf(
+      "Generate or update advisory plan comment",
+    );
+    expect(permissionStep).toBeGreaterThan(-1);
+    expect(agentStep).toBeGreaterThan(permissionStep);
+    expect(source).toContain("core.setFailed");
+    expect(source).toMatch(/new Set\(\['admin', 'maintain', 'write'\]\)/);
+    expect(source).not.toContain("'triage'");
   });
 });
