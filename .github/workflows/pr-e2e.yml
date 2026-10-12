@@ -25,18 +25,19 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: Set up Node.js
-        uses: actions/setup-node@1d0ff469b7ec7b3cb9d8673fde0c81c44821de2a # v4.3.0
-        with:
-          node-version: 22
-          cache: pnpm
-
+      # setup-node's pnpm cache runs `pnpm store path`, so pnpm must exist first.
       - name: Activate locked pnpm version
         shell: bash
         run: |
           corepack enable
           corepack prepare pnpm@10.17.1 --activate
           test "$(pnpm --version)" = "10.17.1"
+
+      - name: Set up Node.js
+        uses: actions/setup-node@1d0ff469b7ec7b3cb9d8673fde0c81c44821de2a # v4.3.0
+        with:
+          node-version: 22
+          cache: pnpm
 
       - name: Install dependencies from lockfile
         run: pnpm install --frozen-lockfile
