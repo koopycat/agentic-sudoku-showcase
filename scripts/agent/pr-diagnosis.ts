@@ -535,7 +535,10 @@ async function loadFailureContext(
 
 export async function runDiagnosis(
   fetchImpl: FetchLike = fetch,
-): Promise<{ action: "created" | "updated"; commentId: number }> {
+): Promise<
+  | { action: "created" | "updated"; commentId: number }
+  | { action: "skipped"; reason: string }
+> {
   const token = requireEnvironment("GITHUB_TOKEN");
   const repository = requireEnvironment("GITHUB_REPOSITORY");
   const pullRequestNumber = Number(requireEnvironment("PULL_REQUEST_NUMBER"));
@@ -564,9 +567,7 @@ export async function runDiagnosis(
     pullRequestHeadSha: pullRequest.headSha,
   });
   if (!eligibility.eligible) {
-    throw new Error(
-      `Pull request is not eligible for diagnosis: ${eligibility.reason}`,
-    );
+    return { action: "skipped", reason: eligibility.reason };
   }
 
   const failureContext = await loadFailureContext(
@@ -606,6 +607,10 @@ const invokedDirectly =
 if (invokedDirectly) {
   runDiagnosis()
     .then((result) => {
+      if (result.action === "skipped") {
+        console.log(`Diagnosis skipped: ${result.reason}`);
+        return;
+      }
       console.log(
         `Diagnosis comment ${result.action} (id ${result.commentId}).`,
       );

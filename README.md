@@ -10,7 +10,7 @@ Agents comment; they do not commit, approve, or merge code.
 
 ## Setup
 
-Requirements: Node.js 22+ and pnpm 10.17.1.
+Requirements: Node.js 22+ and the pnpm version declared in `package.json` (`packageManager`). CI activates that version before configuring the pnpm cache.
 
 ```bash
 pnpm install --frozen-lockfile
@@ -48,6 +48,10 @@ pnpm check              # all non-browser checks
 Create an `agent-plan` label. Applying it to an issue triggers planning only when the actor has `admin`, `maintain`, or `write` permission. Configure `AGENT_API_KEY`, `AGENT_API_URL`, and `AGENT_MODEL` as repository secrets/variables described in `.env.example`.
 
 PR tests never receive model credentials. After a failed run, diagnosis is limited to trusted authors (`OWNER`, `MEMBER`, or `COLLABORATOR`) using branches in the same repository. Reports update one marked comment and cannot write repository contents.
+
+The Chromium job uses Ubuntu 24.04 because the pinned Playwright version does not support Ubuntu 26.04. Keep the runner image compatible when upgrading Playwright rather than relying on `ubuntu-latest`.
+
+Ineligible diagnosis requests (including untrusted bot authors, forks, and superseded head commits) log a skip and exit successfully without invoking the provider or writing a comment. GitHub API, provider configuration, and execution errors still fail the job.
 
 Failure artifacts are retained for seven days. Download `playwright-report` and `test-results` from the failed Actions run for traces, screenshots, and videos.
 
