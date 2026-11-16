@@ -18,6 +18,8 @@ pnpm test:e2e:install
 pnpm dev
 ```
 
+On Linux, `pnpm test:e2e:install` installs Chromium and its system dependencies and may require sudo.
+
 Copy `.env.example` only for local agent-adapter dry runs. Never commit `.env`.
 
 ## Canonical commands
@@ -49,7 +51,7 @@ Create an `agent-plan` label. Applying it to an issue triggers planning only whe
 
 PR tests never receive model credentials. After a failed run, diagnosis is limited to trusted authors (`OWNER`, `MEMBER`, or `COLLABORATOR`) using branches in the same repository. Reports update one marked comment and cannot write repository contents.
 
-The Chromium job uses Ubuntu 24.04 because the pinned Playwright version does not support Ubuntu 26.04. Keep the runner image compatible when upgrading Playwright rather than relying on `ubuntu-latest`.
+The Chromium job uses an explicit `ubuntu-26.04` runner with Playwright 1.65.1 and the same `pnpm test:e2e:install` command as local setup. Keep the runner image compatible when upgrading Playwright rather than relying on `ubuntu-latest`.
 
 Ineligible diagnosis requests (including untrusted bot authors, forks, and superseded head commits) log a skip and exit successfully without invoking the provider or writing a comment. GitHub API, provider configuration, and execution errors still fail the job.
 

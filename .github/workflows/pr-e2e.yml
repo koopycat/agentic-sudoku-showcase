@@ -15,8 +15,7 @@ jobs:
   e2e:
     name: Chromium E2E
     if: github.event.pull_request.draft == false
-    # Playwright 1.55.1 supports Ubuntu 24.04, not the 26.04 latest image.
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     timeout-minutes: 20
     env:
       CI: true
@@ -44,7 +43,7 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Install Chromium
-        run: pnpm exec playwright install --with-deps chromium
+        run: pnpm test:e2e:install
 
       - name: Build application
         run: pnpm build
