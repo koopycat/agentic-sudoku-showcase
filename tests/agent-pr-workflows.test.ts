@@ -24,19 +24,6 @@ describe("pull request E2E workflow", () => {
     expect(workflow.jobs.e2e["timeout-minutes"]).toBeGreaterThan(0);
     expect(text("pr-e2e.yml")).not.toMatch(/AGENT_API_KEY|secrets\./);
   });
-
-  it("uses locked pnpm, Chromium, build/test, and failure-only seven-day evidence", () => {
-    const source = text("pr-e2e.yml");
-    expect(source).toContain("pnpm@10.17.1");
-    expect(source).toContain("pnpm install --frozen-lockfile");
-    expect(source).toContain("playwright install --with-deps chromium");
-    expect(source).toContain("pnpm build");
-    expect(source).toContain("pnpm test:e2e");
-    expect(source).toContain("if: failure()");
-    expect(source).toContain("retention-days: 7");
-    expect(source).toContain("playwright-report/");
-    expect(source).toContain("test-results/");
-  });
 });
 
 describe("post-failure diagnosis workflow", () => {

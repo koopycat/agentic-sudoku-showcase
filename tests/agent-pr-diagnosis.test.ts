@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
 import {
   MAX_FAILURE_CONTEXT_CHARS,
@@ -8,6 +8,7 @@ import {
   parseDiagnosticOutput,
   redactSensitiveText,
   renderDiagnosisComment,
+  runDiagnosis,
 } from "../scripts/agent/pr-diagnosis.ts";
 import { upsertIssueComment, type FetchLike } from "../scripts/agent/shared.ts";
 
@@ -162,5 +163,76 @@ describe("idempotent diagnosis comments", () => {
     expect(result).toEqual({ action: "updated", commentId: 99 });
     expect(calls.map(({ method }) => method)).toEqual(["GET", "PATCH"]);
     expect(calls[1]?.url).toContain("/issues/comments/99");
+  });
+});
+
+describe("diagnosis eligibility at the adapter boundary", () => {
+  afterEach(() => vi.unstubAllEnvs());
+
+  function configureRun() {
+    vi.stubEnv("GITHUB_TOKEN", "test-token");
+    vi.stubEnv("GITHUB_REPOSITORY", "octo/sudoku");
+    vi.stubEnv("GITHUB_API_URL", "https://api.github.com");
+    vi.stubEnv("PULL_REQUEST_NUMBER", "42");
+    vi.stubEnv("WORKFLOW_RUN_ID", "123");
+    vi.stubEnv(
+      "WORKFLOW_RUN_URL",
+      "https://github.com/octo/sudoku/actions/runs/123",
+    );
+    vi.stubEnv("WORKFLOW_HEAD_REPOSITORY", "octo/sudoku");
+    vi.stubEnv("WORKFLOW_HEAD_SHA", "a".repeat(40));
+  }
+
+  it.each([
+    {
+      association: "NONE",
+      headRepository: "octo/sudoku",
+      headSha: "a".repeat(40),
+    },
+    {
+      association: "OWNER",
+      headRepository: "fork/sudoku",
+      headSha: "a".repeat(40),
+    },
+    {
+      association: "OWNER",
+      headRepository: "octo/sudoku",
+      headSha: "b".repeat(40),
+    },
+  ])(
+    "skips ineligible PRs without collecting evidence, invoking a provider, or writing comments: %j",
+    async ({ association, headRepository, headSha }) => {
+      configureRun();
+      const requests: string[] = [];
+      const fetchImpl: FetchLike = async (input, init) => {
+        const url = String(input);
+        requests.push(url);
+        expect(init?.method ?? "GET").toBe("GET");
+        if (url === "https://api.github.com/repos/octo/sudoku/pulls/42") {
+          return Response.json({
+            author_association: association,
+            base: { repo: { full_name: "octo/sudoku" } },
+            head: { repo: { full_name: headRepository }, sha: headSha },
+          });
+        }
+        if (new URL(url).pathname === "/repos/octo/sudoku/pulls/42/files") {
+          return Response.json([]);
+        }
+        throw new Error(`Unexpected request: ${url}`);
+      };
+
+      await expect(runDiagnosis(fetchImpl)).resolves.toEqual({
+        action: "skipped",
+        reason: expect.any(String),
+      });
+      expect(requests).toHaveLength(2);
+    },
+  );
+
+  it("still fails when GitHub cannot verify eligibility", async () => {
+    configureRun();
+    await expect(
+      runDiagnosis(async () => new Response(null, { status: 403 })),
+    ).rejects.toThrow("GitHub API request failed (403).");
   });
 });
