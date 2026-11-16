@@ -15,7 +15,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:e2e": "playwright test",
-    "test:e2e:install": "playwright install chromium",
+    "test:e2e:install": "playwright install --with-deps chromium",
     "validate:workflows": "node scripts/validate-workflows.mjs",
     "test:agent-dry-run": "vitest run tests/agent-dry-run.test.ts",
     "check": "prettier --check . && eslint . && tsc -b && vitest run && vite build && node scripts/validate-workflows.mjs"
@@ -26,7 +26,7 @@
   "devDependencies": {
     "@axe-core/playwright": "4.10.2",
     "@eslint/js": "9.36.0",
-    "@playwright/test": "1.55.1",
+    "@playwright/test": "1.65.1",
     "@types/node": "24.5.2",
     "eslint": "9.36.0",
     "eslint-plugin-lit": "2.1.1",
