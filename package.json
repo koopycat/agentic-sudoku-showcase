@@ -14,7 +14,7 @@
     "typecheck": "tsc -b",
     "test": "vitest run",
     "test:watch": "vitest",
-    "test:e2e": "playwright test",
+    "test:e2e": "node scripts/ensure-playwright-browser.mjs && playwright test",
     "test:e2e:install": "playwright install chromium",
     "validate:workflows": "node scripts/validate-workflows.mjs",
     "test:agent-dry-run": "vitest run tests/agent-dry-run.test.ts",
