@@ -1,4 +1,15 @@
-import { defineConfig, devices } from "@playwright/test";
+import { existsSync } from "node:fs";
+import { chromium, defineConfig, devices } from "@playwright/test";
+
+const hasBundledChromium = (() => {
+  try {
+    return existsSync(chromium.executablePath());
+  } catch {
+    return false;
+  }
+})();
+
+const chromiumChannel = hasBundledChromium ? "chromium" : "chrome";
 
 export default defineConfig({
   testDir: "./tests/e2e",
@@ -13,7 +24,12 @@ export default defineConfig({
     screenshot: "only-on-failure",
     video: "retain-on-failure",
   },
-  projects: [{ name: "chromium", use: { ...devices["Desktop Chrome"] } }],
+  projects: [
+    {
+      name: "chromium",
+      use: { ...devices["Desktop Chrome"], channel: chromiumChannel },
+    },
+  ],
   webServer: {
     command: "corepack pnpm preview --host 127.0.0.1",
     url: "http://127.0.0.1:4173",

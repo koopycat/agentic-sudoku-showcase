@@ -15,7 +15,9 @@ jobs:
   e2e:
     name: Chromium E2E
     if: github.event.pull_request.draft == false
-    runs-on: ubuntu-latest
+    # Playwright 1.55.1 does not support Ubuntu 26.04, which ubuntu-latest now
+    # resolves to; keep this pinned until Playwright is upgraded.
+    runs-on: ubuntu-24.04
     timeout-minutes: 20
     env:
       CI: true
